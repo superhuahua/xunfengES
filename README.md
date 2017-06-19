@@ -46,6 +46,41 @@
 
 * 不带认证启动：flower --broker=redis://localhost:6379/0 --address=127.0.0.1 --port=5555
 
+## logstash
+<pre>
+input{
+    redis {
+        host => "localhost"
+        data_type => "list"
+        key => "hostScan"
+        db => 1
+    }
+    redis {
+        host => "localhost"
+        data_type => "list"
+        key => "vulTask"
+        db => 1
+    }
+}
+filter{}
+output{
+    if [tags] == "hostScan" {
+        elasticsearch {
+            hosts => ["localhost"]
+            index => "assets"
+            document_id => "%{id}"
+        }       
+    }
+
+    if [tags] == "vulTask" {
+        elasticsearch {
+            hosts => ["localhost"]
+            index => "vultask"
+        }
+    }
+}
+</pre>
+
 ## 前端
 
 * 懒得重新打包前端, 可自行修改index.js中localhost:5555、localhost:5601
