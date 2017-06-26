@@ -67,16 +67,25 @@ class vulscan():
         passDic = self.passDic
         api_vulScript(task_id=task_id, task_name=task_name, netloc=netloc, pfileName=pfileName, passDic=passDic)
 
-def updatePlugins(plugin_name):
+def updatePlugins(plugin_name, suffix):
     try:
         time_ = datetime.datetime.now()
-        res_tmp = __import__('server.vulscan.vuldb.'+plugin_name, globals(), locals(), ["get_plugin_info"], -1)
-        plugin_info = res_tmp.get_plugin_info()
-        plugin_info['add_time'] = time_
-        plugin_info['filename'] = plugin_name
-        es.insert_plugins_doc(plugin_info)
+        if suffix == 'py':
+            res_tmp = __import__('server.vulscan.vuldb.'+plugin_name, globals(), locals(), ["get_plugin_info"], -1)
+            plugin_info = res_tmp.get_plugin_info()
+            plugin_info['add_time'] = time_
+            plugin_info['filename'] = plugin_name
+            es.insert_plugins_doc(plugin_info)
+        elif suffix == 'json':
+            plugin_name += '.json'
+            json_text = open(sys.path[0] + '/vulscan/vuldb/' + plugin_name, 'r').read()
+            plugin_info = json.loads(json_text)
+            plugin_info['add_time'] = time_
+            plugin_info['filename'] = plugin_name
+            del plugin_info['plugin']
+            es.insert_plugins_doc(plugin_info)           
     except Exception as e:
-        pass
+        print e
          
 def init():
     es.init_plugins() # 创建es插件库
@@ -111,6 +120,5 @@ def init():
             plugin_info['filename'] = plugin_name
             del plugin_info['plugin']
             es.insert_plugins_doc(plugin_info)
-            jcount+=1
         except:
             pass

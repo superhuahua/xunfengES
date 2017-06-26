@@ -1,7 +1,11 @@
+# coding:utf-8
 import time
 import json
 import os
+import sys
 from redispool import getStrictRedis
+reload(sys)
+sys.setdefaultencoding('utf-8') 
 
 FILE_PATH = os.path.split(os.path.realpath(__file__))[0] + '/vuldb/'
 
@@ -21,4 +25,4 @@ if __name__ == '__main__':
                 f.close()
             time.sleep(10)      
         except Exception as e:
-            pass 
+            pass

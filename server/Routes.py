@@ -144,10 +144,11 @@ def uploadPlugins():
     try:
         if f:
             fname = secure_filename(f.filename)
-            if fname.split('.')[-1] == 'py':
+            suffix = fname.split('.')[-1]
+            if suffix in ['py','json']:
                 path = FILE_PATH + fname
                 if os.path.exists(FILE_PATH + fname):
-                    fname = fname.split('.')[0] + '_' + str(datetime.now().second) + '.py'
+                    fname = fname.split('.')[0] + '_' + str(datetime.now().second) + "." + suffix
                     path = FILE_PATH + fname
                 f.save(path)
                 if os.path.exists(path):
@@ -155,9 +156,10 @@ def uploadPlugins():
                     # redis publish
                     with open(path) as pf:
                         r = getStrictRedis()
-                        r.publish('updateplugins', json.dumps({"filename":file_name+".py", "content":pf.read()}))
+                        r.publish('updateplugins', json.dumps({"filename":file_name+"."+suffix, "content":pf.read()}))
                     # update esplugins
-                    vulScan.updatePlugins(file_name)
+                    vulScan.updatePlugins(file_name, suffix)
+                
         return jsonify({"message":"ok"})
     except Exception as e:
         pass

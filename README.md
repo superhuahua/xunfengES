@@ -20,10 +20,6 @@
 
 * 启动周期验证: sudo python monitor/index.py 
 
-* flower查看task状态
-
-* kibana配置视图，面板
-
 ## Celery node
 
 * sudo pip install redis celery celery[redis]
@@ -34,7 +30,7 @@
 
 * 启动worker定义队列和worker名称：celery worker -A celerynode.tasks -E -n node1 -Q master -c 5 &>/dev/null &
 
-* 订阅redis,接收更新插件: python subscribe.py 
+* 启动订阅redis,接收更新插件: python subscribe.py 
 
 ## Flower
 
@@ -42,7 +38,7 @@
 
 * sudo pip install flower
 
-* 启动：flower --broker=redis://:Password@localhost:6379/0 --basic_auth=test:123456 --address=127.0.0.1 --port=5555
+* 启动flower：flower --broker=redis://:Password@localhost:6379/0 --basic_auth=test:123456 --address=127.0.0.1 --port=5555
 
 * 不带认证启动：flower --broker=redis://localhost:6379/0 --address=127.0.0.1 --port=5555
 
@@ -83,6 +79,10 @@ output{
 
 ## 前端
 
+* flower查看task状态
+
+* kibana配置视图，面板
+
 * 懒得重新打包前端, 可自行修改index.js中localhost:5555、localhost:5601
 
 ## 文件结构说明
@@ -96,6 +96,8 @@ output{
     |-- tasks.py 芹菜任务列表
     |
     |-- common.py 公用函数库
+    |
+    |-- subscribe.py 接收更新插件
     |
     |-- Config.py 芹菜配置
     
@@ -129,9 +131,8 @@ output{
 
 ## 后续功能
 
-* celery beat计划任务失败（目标：节点只连redis，不连接es）。
+* 主机扫描cidr
 
-* cidr
+* 插件password字典
 
-* flask 上传新脚本 -> redis 订阅推送各个节点
- 
+* 服务识别
