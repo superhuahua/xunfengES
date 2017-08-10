@@ -1,48 +1,79 @@
-## Base xunfeng
+# Base xunfeng
 
-## Python 2.7.5+
+## 安装环境依赖
 
-* 低版本python貌似celery会报错
+    * Python 2.7.5+ 
 
-* pip install elasticsearch (elasticsearch-5.4.0,不然help.scan会报错)
+    * Nmap
 
-## nmap
+    * ELK（elasticsearch、logstash、kibana）
 
-* 安装最新版本nmap(节点、server)
+    * Redis
 
-* sudo pip install python-nmap
+## 部署流程
 
-## Server (flask 、 react + atnd)
-    
-* 初始化es配置: python esinit.py 
+### 下载xfes
 
-* 启动服务端: sudo python run.py
+`git clone https://github.com/superhuahua/xunfengES.git`
 
-* 启动周期验证: sudo python monitor/index.py 
+### 安装python的nmap插件（服务端、节点）
 
-## Celery node
+`sudo pip install python-nmap`
 
-* sudo pip install redis celery celery[redis]
+### Server (服务端)
 
-* 部署开启即可
+```
+pip install elasticsearch==5.4.0 //安装python的es插件
 
-* 建议使用supervisor管理
+cd xunfengES/server
+python esinit.py  //初始化es配置
+python run.py //启动服务端
+sudo python monitor/index.py //启动周期验证,无资产数据时报错,可忽略报错
+```
 
-* 启动worker定义队列和worker名称：celery worker -A celerynode.tasks -E -n node1 -Q master -c 5 &>/dev/null &
+### Celery node（节点）
 
-* 启动订阅redis,接收更新插件: python subscribe.py 
+```
+sudo pip install redis celery celery[redis] //安装redis，celery模块
+cd xunfengES
+celery worker -A celerynode.tasks -E -n node1 -Q master -c 5  //启动celery
+python subscribe.py //启动订阅redis，接收更新插件
+```
 
-## Flower
+### Flower
 
-* 监控celery队列，查看tasks运行情况
+```
+sudo pip instal flower
 
-* sudo pip install flower
+flower --broker=redis://:Password@localhost:6379/1 --basic_auth=test:123456 --address=127.0.0.1 --port=5555 //启动flower
 
-* 启动flower：flower --broker=redis://:Password@localhost:6379/0 --basic_auth=test:123456 --address=127.0.0.1 --port=5555
+flower --broker=redis://localhost:6379/0 --address=127.0.0.1 --port=5555 //不带认证启动
 
-* 不带认证启动：flower --broker=redis://localhost:6379/0 --address=127.0.0.1 --port=5555
+```
 
-## logstash
+### redis
+
+```
+wget http://download.redis.io/releases/redis-3.2.8.tar.gz
+tar xzf redis-3.2.8.tar.gz
+cd redis-3.2.8
+make
+```
+
+修改`/etc/redis.conf`为
+
+```
+bind 0.0.0.0
+```
+
+启动redis：`src/redis-server /etc/redis.conf`
+
+### Elasticsearch
+下载ES: <https://www.elastic.co/downloads/elasticsearch>
+
+解压之后以普通用户运行: `bin/elasticsearch`
+
+### Logstash
 <pre>
 input{
     redis {
@@ -77,7 +108,22 @@ output{
 }
 </pre>
 
-## 前端
+以上文件保存为`/etc/logstash.conf`
+
+下载logstash:
+
+<https://www.elastic.co/downloads/logstash>
+
+启动logstash: `bin/logstash -f /etc/logstash.conf`
+
+
+### Kibana
+
+下载: <https://www.elastic.co/downloads/kibana>
+
+运行: `bin/kibana`
+
+### 前端
 
 * flower查看task状态
 
@@ -85,7 +131,7 @@ output{
 
 * 懒得重新打包前端, 可自行修改index.js中localhost:5555、localhost:5601
 
-## 文件结构说明
+### 文件结构说明
 
     celerynode
     |
