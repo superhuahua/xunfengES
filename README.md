@@ -33,6 +33,8 @@ sudo python monitor/index.py //启动周期验证,无资产数据时报错,可�
 
 ### Celery node（节点）
 
+> Tips:服务端也需要启动celery
+
 ```
 sudo pip install redis celery celery[redis] //安装redis，celery模块
 cd xunfengES
@@ -47,7 +49,7 @@ sudo pip instal flower
 
 flower --broker=redis://:Password@localhost:6379/1 --basic_auth=test:123456 --address=127.0.0.1 --port=5555 //启动flower
 
-flower --broker=redis://localhost:6379/0 --address=127.0.0.1 --port=5555 //不带认证启动
+flower --broker=redis://localhost:6379/1 --address=127.0.0.1 --port=5555 //不带认证启动
 
 ```
 
